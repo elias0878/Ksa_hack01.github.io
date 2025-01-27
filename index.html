@@ -3,242 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مدير الكوكيز المتقدم</title>
+    <title>محلل البيانات الخصوصية</title>
     <style>
         :root {
-            --primary-color: #4CAF50;
-            --danger-color: #ff4444;
-            --background-dark: #1a1a1a;
-            --text-light: #ffffff;
+            --primary: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: var(--background-dark);
-            color: var(--text-light);
+            font-family: 'Tahoma', sans-serif;
+            background: var(--dark);
+            color: var(--light);
             margin: 0;
             padding: 20px;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 20px auto;
-            background: #2d2d2d;
+            background: #34495e;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
         }
 
-        .header {
+        .permission-box {
+            background: #27ae60;
+            padding: 25px;
+            border-radius: 10px;
             text-align: center;
-            margin-bottom: 40px;
-            border-bottom: 3px solid var(--primary-color);
-            padding-bottom: 20px;
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
             margin-bottom: 30px;
         }
 
+        .data-section {
+            margin: 25px 0;
+            padding: 20px;
+            background: #2c3e50;
+            border-radius: 10px;
+        }
+
+        .sensitive-data {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .data-card {
+            background: #3b4a5e;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
         button {
-            padding: 15px 25px;
+            background: var(--primary);
+            color: white;
             border: none;
+            padding: 12px 25px;
             border-radius: 25px;
             cursor: pointer;
             font-size: 1.1em;
+            margin: 10px;
             transition: all 0.3s;
-            background: var(--primary-color);
-            color: white;
         }
 
         button.danger {
-            background: var(--danger-color);
+            background: var(--danger);
         }
 
         button:hover {
-            filter: brightness(1.1);
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .cookie-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .cookie-card {
-            background: #333;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid var(--primary-color);
-            position: relative;
-        }
-
-        .cookie-props {
-            margin-top: 15px;
-            background: #404040;
+        .warning {
+            color: var(--danger);
+            text-align: center;
             padding: 15px;
+            border: 2px solid currentColor;
             border-radius: 8px;
-        }
-
-        .prop-item {
-            margin: 10px 0;
-            padding: 8px;
-            background: #505050;
-            border-radius: 5px;
-            word-break: break-all;
-        }
-
-        .cookie-meta {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            font-size: 0.9em;
-            color: #aaa;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🛠️ مدير الكوكيز الاحترافي</h1>
-            <p>أداة متقدمة لإدارة وإنشاء وعرض جميع ملفات تعريف الارتباط</p>
+        <div class="permission-box">
+            <h2>موافقة على تحليل البيانات</h2>
+            <p>هذه الأداة لأغراض تعليمية فقط ولا تخزن أي بيانات</p>
+            <button onclick="startDataCollection()">✅ أوافق على البدء</button>
+            <button class="danger" onclick="deleteAllData()">❌ حذف كل البيانات</button>
         </div>
 
-        <div class="controls">
-            <button onclick="createAdvancedCookies()">🍪 إنشاء كوكيز تجريبية</button>
-            <button onclick="showAllCookies()">🔍 عرض جميع الكوكيز</button>
-            <button class="danger" onclick="deleteAllCookies()">🗑️ حذف الكل</button>
+        <div class="warning" id="warningMessage"></div>
+
+        <div class="data-section" id="emailSection">
+            <h3>📧 عناوين البريد الإلكتروني</h3>
+            <div class="sensitive-data" id="emailList"></div>
         </div>
 
-        <div class="cookie-grid" id="cookieContainer"></div>
+        <div class="data-section" id="phoneSection">
+            <h3>📱 أرقام الهواتف</h3>
+            <div class="sensitive-data" id="phoneList"></div>
+        </div>
+
+        <div class="data-section" id="otherDataSection">
+            <h3>🔍 بيانات أخرى محتملة</h3>
+            <div class="sensitive-data" id="otherDataList"></div>
+        </div>
     </div>
 
     <script>
-        // إنشاء كوكيز متقدمة بأنواع مختلفة
-        function createAdvancedCookies() {
-            const date = new Date();
-            date.setFullYear(date.getFullYear() + 1);
+        // تعبيرات عادية لاكتشاف البيانات الحساسة
+        const patterns = {
+            email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
+            phone: /\b(?:\+?966|0)?5[0-9]{8}\b/g,
+            token: /\b[a-f0-9]{32,}\b/gi,
+            creditCard: /\b(?:\d[ -]*?){13,16}\b/g
+        };
 
-            // أنواع مختلفة من الكوكيز
-            const cookies = [
-                {
-                    name: 'test_session',
-                    value: 'session_data_123',
-                    attributes: 'path=/; SameSite=Lax'
-                },
-                {
-                    name: 'secure_cookie',
-                    value: 'encrypted_data',
-                    attributes: 'Secure; HttpOnly; path=/; SameSite=Strict'
-                },
-                {
-                    name: 'persistent_cookie',
-                    value: 'long_term_data',
-                    attributes: `expires=${date.toUTCString()}; path=/; domain=${window.location.hostname}`
-                },
-                {
-                    name: 'third_party',
-                    value: 'tracking_data',
-                    attributes: 'path=/; domain=.example.com'
+        async function startDataCollection() {
+            try {
+                // طلب إذن الوصول
+                const hasPermission = await requestCookiePermission();
+                if (!hasPermission) return;
+
+                // جمع البيانات وتحليلها
+                const cookies = parseCookies();
+                const sensitiveData = analyzeData(cookies);
+
+                // عرض النتائج
+                displayResults(sensitiveData);
+            } catch (error) {
+                showWarning('حدث خطأ في جمع البيانات!');
+            }
+        }
+
+        async function requestCookiePermission() {
+            return new Promise((resolve) => {
+                const warning = document.getElementById('warningMessage');
+                try {
+                    // محاولة قراءة كوكيز لتفعيل طلب الإذن
+                    const test = document.cookie;
+                    resolve(true);
+                } catch (error) {
+                    warning.innerHTML = 'تم رفض الوصول! يرجى تفعيل الإذن يدويًا في إعدادات المتصفح';
+                    resolve(false);
                 }
+            });
+        }
+
+        function parseCookies() {
+            return document.cookie.split(';').reduce((acc, cookie) => {
+                const [name, value] = cookie.split('=').map(s => s.trim());
+                acc[name] = decodeURIComponent(value);
+                return acc;
+            }, {});
+        }
+
+        function analyzeData(cookies) {
+            const results = {
+                emails: new Set(),
+                phones: new Set(),
+                tokens: new Set(),
+                creditCards: new Set(),
+                others: []
+            };
+
+            Object.entries(cookies).forEach(([name, value]) => {
+                // البحث عن إيميلات
+                const foundEmails = value.match(patterns.email);
+                if (foundEmails) foundEmails.forEach(e => results.emails.add(e));
+
+                // البحث عن أرقام هواتف
+                const foundPhones = value.match(patterns.phone);
+                if (foundPhones) foundPhones.forEach(p => results.phones.add(p));
+
+                // البحث عن بيانات حساسة أخرى
+                if (patterns.token.test(value)) results.tokens.add(value);
+                if (patterns.creditCard.test(value)) results.creditCards.add(value);
+                
+                // بيانات عامة
+                if (value.length > 40 && !results.tokens.has(value)) {
+                    results.others.push({ name, value: value.slice(0, 30) + '...' });
+                }
+            });
+
+            return results;
+        }
+
+        function displayResults(data) {
+            displaySection('emailList', Array.from(data.emails));
+            displaySection('phoneList', Array.from(data.phones));
+            displayOtherData(data);
+        }
+
+        function displaySection(containerId, items) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = items.length > 0 
+                ? items.map(i => `<div class="data-card">${i}</div>`).join('')
+                : '<div class="data-card">لا توجد بيانات</div>';
+        }
+
+        function displayOtherData(data) {
+            const container = document.getElementById('otherDataList');
+            const items = [
+                ...Array.from(data.tokens).map(t => ({ name: 'Token', value: t })),
+                ...Array.from(data.creditCards).map(c => ({ name: 'Credit Card', value: c })),
+                ...data.others
             ];
-
-            cookies.forEach(cookie => {
-                document.cookie = `${cookie.name}=${encodeURIComponent(cookie.value)}; ${cookie.attributes}`;
-            });
-
-            showAllCookies();
-        }
-
-        // عرض جميع الكوكيز بتفاصيلها
-        function showAllCookies() {
-            const cookies = parseCookiesWithDetails();
-            const container = document.getElementById('cookieContainer');
-            container.innerHTML = '';
-
-            if (cookies.length === 0) {
-                container.innerHTML = '<div class="cookie-card">لا توجد كوكيز متاحة</div>';
-                return;
-            }
-
-            cookies.forEach(cookie => {
-                const card = document.createElement('div');
-                card.className = 'cookie-card';
-                
-                const content = `
-                    <h3>${cookie.name}</h3>
-                    <div class="cookie-props">
-                        <div class="prop-item">
-                            <strong>القيمة:</strong> ${cookie.value}
-                        </div>
-                        <div class="prop-item">
-                            <strong>المجال:</strong> ${cookie.domain || window.location.hostname}
-                        </div>
-                        <div class="prop-item">
-                            <strong>المسار:</strong> ${cookie.path || '/'}
-                        </div>
-                        <div class="cookie-meta">
-                            <span>${cookie.secure ? '🔐 آمن' : '⚠️ غير آمن'}</span>
-                            <span>${cookie.httpOnly ? '🛡️ HttpOnly' : '🌐 قابل للوصول'}</span>
-                        </div>
-                    </div>
-                `;
-
-                card.innerHTML = content;
-                container.appendChild(card);
-            });
-        }
-
-        // تحليل الكوكيز مع تفاصيلها الكاملة
-        function parseCookiesWithDetails() {
-            return document.cookie.split(';').map(cookie => {
-                const [nameValue, ...rest] = cookie.trim().split(';');
-                const [name, value] = nameValue.split('=');
-                
-                const details = rest.reduce((acc, attr) => {
-                    const [key, val] = attr.split('=');
-                    acc[key.trim().toLowerCase()] = val ? val.trim() : true;
-                    return acc;
-                }, {});
-
-                return {
-                    name: name.trim(),
-                    value: decodeURIComponent(value || ''),
-                    domain: details.domain,
-                    path: details.path,
-                    expires: details.expires,
-                    secure: !!details.secure,
-                    httpOnly: !!details.httponly,
-                    samesite: details.samesite
-                };
-            });
-        }
-
-        // حذف جميع الكوكيز
-        function deleteAllCookies() {
-            const cookies = document.cookie.split(';');
             
-            cookies.forEach(cookie => {
-                const [name] = cookie.split('=');
-                document.cookie = `${name.trim()}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-            });
-
-            showAllCookies();
+            container.innerHTML = items.length > 0 
+                ? items.map(i => `
+                    <div class="data-card">
+                        <strong>${i.name}:</strong> 
+                        <span>${i.value}</span>
+                    </div>
+                `).join('')
+                : '<div class="data-card">لا توجد بيانات حساسة أخرى</div>';
         }
 
-        // التحديث التلقائي عند تغيير الكوكيز
-        setInterval(() => {
-            if (document.cookie !== document.cookie) {
-                showAllCookies();
-            }
-        }, 1000);
+        function deleteAllData() {
+            document.cookie.split(';').forEach(cookie => {
+                const [name] = cookie.split('=');
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            });
+            location.reload();
+        }
 
-        // التحميل الأولي
-        showAllCookies();
+        function showWarning(message) {
+            document.getElementById('warningMessage').textContent = message;
+        }
     </script>
 </body>
 </html>
