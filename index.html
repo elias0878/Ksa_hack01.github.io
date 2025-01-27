@@ -2,480 +2,362 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https: 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' https: 'unsafe-inline'; connect-src *">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام التحليل الشامل PRO MAX</title>
-    
-    <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
-    
+    <title>كاشف البيانات المتقدم - النسخة الاحترافية</title>
     <style>
+        /* أنماط CSS كاملة */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
-            --cyber-primary: #00f3ff;
-            --cyber-secondary: #ff00ff;
-            --matrix-bg: radial-gradient(circle, #001100 0%, #000 100%);
-            --neon-shadow: 0 0 10px var(--cyber-primary),
-                          0 0 20px var(--cyber-secondary);
+            --high-risk: #ff4444;
+            --medium-risk: #ffbb33;
+            --low-risk: #00C851;
+            --background: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
         }
 
         body {
-            background: var(--matrix-bg);
-            color: #fff;
-            font-family: 'Tajawal', system-ui;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.8;
+            padding: 20px;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        .cyber-panel {
-            background: rgba(0, 53, 56, 0.25);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--cyber-primary);
-            box-shadow: var(--neon-shadow);
-            border-radius: 8px;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #2d2d2d;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-bottom: 3px solid #4CAF50;
+        }
+
+        .risk-section {
+            margin: 25px 0;
+            padding: 25px;
+            border-radius: 12px;
             transition: all 0.3s ease;
         }
 
-        .neon-text {
-            text-shadow: var(--neon-shadow);
-            animation: neon-pulse 1.5s infinite alternate;
+        .risk-section:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .hologram-effect {
+        .high-risk {
+            border: 3px solid var(--high-risk);
+            background: linear-gradient(145deg, #3a2525 0%, #4d2d2d 100%);
+        }
+
+        .medium-risk {
+            border: 3px solid var(--medium-risk);
+            background: linear-gradient(145deg, #3a3725 0%, #4d492d 100%);
+        }
+
+        .low-risk {
+            border: 3px solid var(--low-risk);
+            background: linear-gradient(145deg, #253a25 0%, #2d4d2d 100%);
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .data-card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid;
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(5px);
         }
 
-        .hologram-effect::before {
+        .data-card::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, 
-                transparent 25%,
-                rgba(0, 243, 255, 0.1) 50%,
-                transparent 75%);
-            animation: hologram 4s infinite linear;
-            pointer-events: none;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transition: 0.5s;
         }
 
-        @keyframes neon-pulse {
-            from { opacity: 0.8; }
-            to { opacity: 1; }
+        .data-card:hover::before {
+            left: 100%;
         }
 
-        @keyframes hologram {
-            0% { transform: rotate(0deg) translate(-50%, -50%); }
-            100% { transform: rotate(360deg) translate(-50%, -50%); }
+        .data-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 8px;
         }
 
-        .error-card {
-            background: rgba(255, 0, 0, 0.15);
-            border: 1px solid #ff0000;
-            animation: error-pulse 1s infinite;
+        .data-value {
+            font-weight: 600;
+            word-break: break-word;
+            font-size: 1.1em;
         }
 
-        @keyframes error-pulse {
-            0% { opacity: 0.7; }
+        .warning-banner {
+            text-align: center;
+            padding: 20px;
+            background: #4a0000;
+            border-radius: 10px;
+            margin: 30px 0;
+            animation: pulseWarning 2s infinite;
+        }
+
+        @keyframes pulseWarning {
+            0%, 100% { opacity: 0.9; }
             50% { opacity: 1; }
-            100% { opacity: 0.7; }
+        }
+
+        .refresh-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 30px auto;
+            width: fit-content;
+        }
+
+        .refresh-button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .privacy-section {
+            background: #333;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 40px;
+            border: 2px solid #444;
+        }
+
+        .privacy-section h3 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .privacy-section p {
+            margin: 10px 0;
+            padding: 8px;
+            background: #404040;
+            border-radius: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                border-radius: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="app" class="container py-4">
-        <!-- نظام الموافقة -->
-        <div id="consentModal" class="modal fade" data-bs-backdrop="static">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content cyber-panel">
-                    <div class="modal-header">
-                        <h5 class="modal-title neon-text">🔐 اتفاقية الخصوصية</h5>
-                    </div>
-                    <div class="modal-body">
-                        <p>يوافق المستخدم على جمع البيانات التالية:</p>
-                        <ul>
-                            <li>معلومات الجهاز الأساسية</li>
-                            <li>بيانات الشبكة والاتصال</li>
-                            <li>أنماط الاستخدام والسلوك</li>
-                        </ul>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">رفض</button>
-                        <button type="button" class="btn btn-success" id="consentAccept">قبول</button>
-                    </div>
-                </div>
-            </div>
+    <div class="container">
+        <h1>🛡️ كاشف البيانات الاحترافي</h1>
+        
+        <div class="warning-banner">
+            ⚠️ تحذير: هذا الموقع يوضح إمكانيات جمع البيانات فقط. لا يتم تخزين أي معلومات!
         </div>
 
-        <!-- الواجهة الرئيسية -->
-        <div class="cyber-panel p-4 mb-4 hologram-effect">
-            <h1 class="neon-text text-center mb-4">🛰️ نظام التحليل الشامل PRO</h1>
-            
-            <!-- بطاقات المعلومات -->
-            <div class="row g-4" id="dashboard">
-                <!-- سيتم تعبئتها ديناميكيًا -->
-            </div>
-
-            <!-- وحدة التحكم -->
-            <div class="row mt-4 g-4">
-                <div class="col-md-6">
-                    <div class="cyber-panel p-3">
-                        <h4 class="neon-text">🎚️ تحكم مباشر</h4>
-                        <div class="btn-group w-100">
-                            <button class="btn btn-cyber" id="refreshBtn">تحديث</button>
-                            <button class="btn btn-cyber" id="exportBtn">تصدير</button>
-                            <button class="btn btn-cyber" id="killSwitch">إيقاف طارئ</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="cyber-panel p-3">
-                        <h4 class="neon-text">📡 الحالة الحية</h4>
-                        <div id="liveStatus" class="text-center">
-                            <div class="spinner-border text-primary"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="risk-section high-risk">
+            <h2>🔐 بيانات عالية الخطورة</h2>
+            <div class="data-grid" id="highRiskData"></div>
         </div>
 
-        <!-- وحدة الأخطاء -->
-        <div id="errorContainer" class="position-fixed bottom-0 end-0 m-3" style="z-index: 9999;"></div>
+        <div class="risk-section medium-risk">
+            <h2>⚠️ بيانات متوسطة الخطورة</h2>
+            <div class="data-grid" id="mediumRiskData"></div>
+        </div>
+
+        <div class="risk-section low-risk">
+            <h2>✅ بيانات منخفضة الخطورة</h2>
+            <div class="data-grid" id="lowRiskData"></div>
+        </div>
+
+        <button class="refresh-button" onclick="refreshData()">🔄 تحديث البيانات الآن</button>
+
+        <div class="privacy-section">
+            <h3>🔒 إجراءات الحماية الموصى بها:</h3>
+            <p>1. استخدام إضافة مانع التتبع (Privacy Badger)</p>
+            <p>2. تفعيل الحماية من البصمة الرقمية</p>
+            <p>3. تعطيل JavaScript للمواقع غير الموثوقة</p>
+        </div>
     </div>
 
-    <!-- المكتبات -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+    <script>
+        // دالة لإنشاء عناصر البيانات
+        function createDataCard(title, content, color) {
+            const card = document.createElement('div');
+            card.className = 'data-card';
+            card.style.borderColor = color;
+            
+            const label = document.createElement('div');
+            label.className = 'data-label';
+            label.textContent = title;
+            
+            const value = document.createElement('div');
+            value.className = 'data-value';
+            value.innerHTML = content;
+            
+            card.appendChild(label);
+            card.appendChild(value);
+            
+            return card;
+        }
 
-    <!-- الكود الرئيسي -->
-    <script type="module">
-        class CyberAnalyticsSystem {
-            constructor() {
-                this.consent = false;
-                this.worker = this.initWorker();
-                this.initEventListeners();
-                this.showConsentModal();
-            }
-
-            initWorker() {
-                const worker = new Worker('data:application/javascript;base64,' + btoa(`
-                    self.onmessage = (e) => {
-                        const result = ${this.heavyProcessing.toString()}(e.data);
-                        self.postMessage(result);
-                    };
-                    
-                    function heavyProcessing(data) {
-                        // معالجة البيانات المعقدة هنا
-                        return data;
-                    }
-                `));
-                
-                worker.onerror = (error) => this.handleError(error);
-                return worker;
-            }
-
-            initEventListeners() {
-                document.getElementById('consentAccept').addEventListener('click', () => {
-                    this.consent = true;
-                    this.startAnalysis();
-                    bootstrap.Modal.getInstance(document.getElementById('consentModal')).hide();
-                });
-
-                document.getElementById('killSwitch').addEventListener('click', () => {
-                    this.emergencyShutdown();
-                });
-
-                window.addEventListener('error', (event) => {
-                    this.handleError(event.error || new Error(event.message));
-                });
-            }
-
-            async startAnalysis() {
-                if (!this.consent) return;
-                
-                try {
-                    this.showLoading();
-                    
-                    const [basic, hardware, network, behavior] = await Promise.allSettled([
-                        this.collectBasicInfo(),
-                        this.collectHardwareData(),
-                        this.analyzeNetwork(),
-                        this.monitorBehavior()
-                    ]);
-
-                    this.renderDashboard({
-                        basic: basic.value,
-                        hardware: hardware.value,
-                        network: network.value,
-                        behavior: behavior.value
+        // جمع البيانات الحساسة
+        async function getHighRiskData() {
+            const data = {};
+            
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
                     });
-
-                    this.initRealTimeUpdates();
-                    this.hideLoading();
-
-                } catch (error) {
-                    this.handleError(error);
-                }
-            }
-
-            async collectBasicInfo() {
-                try {
-                    return {
-                        userAgent: navigator.userAgent,
-                        platform: navigator.platform,
-                        languages: navigator.languages,
-                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                        cookiesEnabled: navigator.cookieEnabled
-                    };
-                } catch (error) {
-                    this.handleError(error, 'Basic Info');
-                    return {};
-                }
-            }
-
-            async collectHardwareData() {
-                try {
-                    const gpuInfo = await this.getGPUInfo();
-                    const memoryInfo = performance.memory ? {
-                        jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
-                        totalJSHeapSize: performance.memory.totalJSHeapSize,
-                        usedJSHeapSize: performance.memory.usedJSHeapSize
-                    } : null;
-
-                    return {
-                        cores: navigator.hardwareConcurrency,
-                        deviceMemory: navigator.deviceMemory || 'N/A',
-                        gpu: gpuInfo,
-                        memory: memoryInfo,
-                        battery: await this.getBatteryStatus()
-                    };
-                } catch (error) {
-                    this.handleError(error, 'Hardware Data');
-                    return {};
-                }
-            }
-
-            async analyzeNetwork() {
-                try {
-                    const [publicIP, localIP, networkInterfaces] = await Promise.all([
-                        this.getPublicIP(),
-                        this.getLocalIP(),
-                        navigator.connection?.getNetworkInterfaces?.() || []
-                    ]);
-
-                    return {
-                        publicIP,
-                        localIP,
-                        connection: navigator.connection ? {
-                            type: navigator.connection.type,
-                            effectiveType: navigator.connection.effectiveType,
-                            downlink: navigator.connection.downlink,
-                            rtt: navigator.connection.rtt
-                        } : null,
-                        networkInterfaces
-                    };
-                } catch (error) {
-                    this.handleError(error, 'Network Analysis');
-                    return {};
-                }
-            }
-
-            async monitorBehavior() {
-                try {
-                    return {
-                        mouseMovement: await this.trackMouse(),
-                        scrollPattern: await this.trackScroll(),
-                        timingMetrics: {
-                            loadTime: performance.timing.loadEventEnd - performance.timing.navigationStart,
-                            domComplete: performance.timing.domComplete
-                        }
-                    };
-                } catch (error) {
-                    this.handleError(error, 'Behavior Monitoring');
-                    return {};
-                }
-            }
-
-            // ===== الوظائف المساعدة =====
-            async getGPUInfo() {
-                try {
-                    const canvas = document.createElement('canvas');
-                    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-                    return {
-                        vendor: gl.getParameter(gl.VENDOR),
-                        renderer: gl.getParameter(gl.RENDERER),
-                        maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE)
-                    };
-                } catch (error) {
-                    return { error: 'WebGL غير مدعوم' };
-                }
-            }
-
-            async getBatteryStatus() {
-                try {
-                    if (!navigator.getBattery) return { status: 'غير مدعوم' };
-                    const battery = await navigator.getBattery();
-                    return {
-                        level: battery.level * 100,
-                        charging: battery.charging,
-                        chargingTime: battery.chargingTime
-                    };
-                } catch (error) {
-                    return { status: 'خطأ في القراءة' };
-                }
-            }
-
-            async getPublicIP() {
-                try {
-                    const response = await fetch('https://api.ipify.org?format=json', {
-                        signal: AbortSignal.timeout(5000)
-                    });
-                    const data = await response.json();
-                    return data.ip;
-                } catch (error) {
-                    return 'غير معروف';
-                }
-            }
-
-            async getLocalIP() {
-                return new Promise((resolve) => {
-                    try {
-                        const peer = new RTCPeerConnection({ iceServers: [] });
-                        peer.createDataChannel('');
-                        peer.createOffer()
-                            .then(o => peer.setLocalDescription(o))
-                            .catch(() => resolve('غير معروف'));
-
-                        peer.onicecandidate = (e) => {
-                            if (e.candidate?.candidate?.match(/([0-9]{1,3}\.){3}[0-9]{1,3}/)) {
-                                resolve(e.candidate.candidate.split(' ')[4]);
-                                peer.close();
-                            }
-                        };
-                    } catch (error) {
-                        resolve('غير معروف');
-                    }
                 });
-            }
-
-            async trackMouse() {
-                return new Promise((resolve) => {
-                    const movements = [];
-                    const listener = (e) => {
-                        movements.push({
-                            x: e.clientX,
-                            y: e.clientY,
-                            t: performance.now()
-                        });
-                    };
-
-                    document.addEventListener('mousemove', listener);
-                    setTimeout(() => {
-                        document.removeEventListener('mousemove', listener);
-                        resolve(movements);
-                    }, 10000);
-                });
-            }
-
-            // ===== عرض البيانات =====
-            renderDashboard(data) {
-                const dashboard = document.getElementById('dashboard');
-                dashboard.innerHTML = `
-                    <div class="col-md-6">
-                        <div class="cyber-panel p-3 h-100">
-                            <h4 class="neon-text">💻 معلومات الجهاز</h4>
-                            <pre>${JSON.stringify(data.hardware, null, 2)}</pre>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <div class="cyber-panel p-3 h-100">
-                            <h4 class="neon-text">🌐 تحليل الشبكة</h4>
-                            <pre>${JSON.stringify(data.network, null, 2)}</pre>
-                        </div>
-                    </div>
-                    
-                    <div class="col-12">
-                        <div class="cyber-panel p-3 mt-4">
-                            <h4 class="neon-text">📈 سلوك المستخدم</h4>
-                            <div id="behaviorChart"></div>
-                        </div>
-                    </div>
-                `;
-
-                this.initBehaviorChart(data.behavior);
-            }
-
-            initBehaviorChart(behaviorData) {
-                const ctx = document.createElement('canvas');
-                document.getElementById('behaviorChart').appendChild(ctx);
                 
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: behaviorData.mouseMovement.map((_, i) => i),
-                        datasets: [{
-                            label: 'حركة الماوس - X',
-                            data: behaviorData.mouseMovement.map(p => p.x),
-                            borderColor: '#00f3ff'
-                        }]
-                    }
-                });
-            }
-
-            // ===== معالجة الأخطاء =====
-            handleError(error, context = 'General') {
-                console.error(`[${context} Error]`, error);
-                
-                const errorCard = document.createElement('div');
-                errorCard.className = 'cyber-panel error-card p-3 mb-3';
-                errorCard.innerHTML = `
-                    <h5>🚨 خطأ في النظام (${context})</h5>
-                    <div class="text-small">${error.message}</div>
+                data['الموقع الجغرافي الدقيق'] = `
+                    خط العرض: ${position.coords.latitude.toFixed(6)}<br>
+                    خط الطول: ${position.coords.longitude.toFixed(6)}<br>
+                    الدقة: ±${Math.round(position.coords.accuracy)} متر
                 `;
-
-                document.getElementById('errorContainer').appendChild(errorCard);
-                setTimeout(() => errorCard.remove(), 10000);
+            } catch (error) {
+                data['الموقع الجغرافي'] = 'تم رفض الإذن ❌';
             }
 
-            emergencyShutdown() {
-                this.worker.terminate();
-                document.getElementById('dashboard').innerHTML = `
-                    <div class="col-12">
-                        <div class="cyber-panel p-3 text-center">
-                            <h4 class="text-danger">⛔ النظام معطل</h4>
-                            <button class="btn btn-warning mt-2" onclick="location.reload()">إعادة التشغيل</button>
-                        </div>
-                    </div>
-                `;
+            return data;
+        }
+
+        // جمع البيانات المتوسطة الخطورة
+        async function getMediumRiskData() {
+            const data = {};
+            
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const result = await response.json();
+                data['عنوان IP العام'] = result.ip;
+            } catch {
+                data['عنوان IP'] = 'غير متاح 🔒';
             }
 
-            showLoading() {
-                document.getElementById('liveStatus').innerHTML = `
-                    <div class="spinner-border text-primary"></div>
-                    <div class="mt-2">جمع البيانات...</div>
-                `;
+            data['نظام التشغيل'] = navigator.platform;
+            data['اللغة الأساسية'] = navigator.language;
+            data['الحالة الشبكية'] = navigator.onLine ? 'متصل 🌐' : 'غير متصل ❌';
+            data['الذاكرة المتوفرة'] = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'غير معروف';
+            data['أنوية المعالج'] = navigator.hardwareConcurrency;
+
+            return data;
+        }
+
+        // جمع البيانات العامة
+        function getLowRiskData() {
+            return {
+                'المتصفح': navigator.userAgent,
+                'دقة الشاشة': `${screen.width} × ${screen.height} بيكسل`,
+                'المنطقة الزمنية': Intl.DateTimeFormat().resolvedOptions().timeZone,
+                'الوضع اللوني': window.matchMedia('(prefers-color-scheme: dark)').matches ? 'داكن 🌙' : 'فاتح ☀️',
+                'نوع الجهاز': /Mobi|Android/i.test(navigator.userAgent) ? 'جوال 📱' : 'كمبيوتر 💻',
+                'المكونات الإضافية': navigator.plugins.length > 0 ? 'مثبتة (' + navigator.plugins.length + ')' : 'غير موجودة'
+            };
+        }
+
+        // عرض البيانات في الواجهة
+        async function displayData() {
+            const highRiskData = await getHighRiskData();
+            const mediumRiskData = await getMediumRiskData();
+            const lowRiskData = getLowRiskData();
+
+            // عرض البيانات عالية الخطورة
+            const highRiskContainer = document.getElementById('highRiskData');
+            highRiskContainer.innerHTML = '';
+            for (const [key, value] of Object.entries(highRiskData)) {
+                highRiskContainer.appendChild(
+                    createDataCard(key, value, 'var(--high-risk)')
+                );
             }
 
-            hideLoading() {
-                document.getElementById('liveStatus').innerHTML = `
-                    <div class="text-success">✅ النظام يعمل</div>
-                    <div class="text-small">آخر تحديث: ${new Date().toLocaleTimeString()}</div>
-                `;
+            // عرض البيانات متوسطة الخطورة
+            const mediumRiskContainer = document.getElementById('mediumRiskData');
+            mediumRiskContainer.innerHTML = '';
+            for (const [key, value] of Object.entries(mediumRiskData)) {
+                mediumRiskContainer.appendChild(
+                    createDataCard(key, value, 'var(--medium-risk)')
+                );
             }
 
-            showConsentModal() {
-                new bootstrap.Modal(document.getElementById('consentModal')).show();
+            // عرض البيانات منخفضة الخطورة
+            const lowRiskContainer = document.getElementById('lowRiskData');
+            lowRiskContainer.innerHTML = '';
+            for (const [key, value] of Object.entries(lowRiskData)) {
+                lowRiskContainer.appendChild(
+                    createDataCard(key, value, 'var(--low-risk)')
+                );
             }
         }
 
-        // بدء التشغيل عند تحميل الصفحة
+        // تحديث البيانات
+        function refreshData() {
+            displayData();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // معالجة الأحداث
         window.addEventListener('load', () => {
-            new CyberAnalyticsSystem();
+            displayData();
+            window.addEventListener('online', displayData);
+            window.addEventListener('offline', displayData);
+        });
+
+        // حماية ضد فحص وحدة التحكم
+        Object.defineProperty(window, 'collectUserData', {
+            value: null,
+            writable: false,
+            configurable: false
         });
     </script>
 </body>
