@@ -4,37 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src * data:;">
-    <title>OSINT ULTIMATE PRO - الإصدار المعدّل</title>
+    <title>OSINT ULTIMATE PRO - الإصدار المتقدم</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.css" rel="stylesheet">
     <style>
         /* تحسينات التصميم */
+        body {
+            background-color: #121212;
+        }
         .cyber-card {
-            background: #1a1e21;
-            border: 1px solid #2c3034;
+            background: #212529;
+            border: 1px solid #343a40;
             border-radius: 15px;
             transition: transform 0.3s ease;
         }
-        
         .cyber-card:hover {
             transform: translateY(-5px);
         }
-        
         .hacker-terminal {
             background: #000;
             color: #0f0;
             font-family: 'Courier New', monospace;
             min-height: 200px;
             max-height: 60vh;
-            overflow-y: auto;
+            overflow-y: auto; 
+            border: 1px solid #0d6efd;
+            padding: 10px;
         }
-        
         #threatMap {
             height: 400px;
             background: #000;
             border-radius: 15px;
         }
-        
         .loader {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #0d6efd;
@@ -44,18 +46,25 @@
             animation: spin 1s linear infinite;
             display: none;
         }
-        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .alert { position: relative; }
+        .alert .close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 2px 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
-<body class="bg-dark text-light">
+<body>
     <div class="container py-5">
         <!-- شريط التحكم -->
         <div class="cyber-card p-4 mb-5">
-            <h1 class="text-center mb-4">🛡️ نظام OSINT المتكامل - الإصدار المعدّل</h1>
+            <h1 class="text-center mb-4">🛡️ نظام OSINT المتكامل - الإصدار المتقدم</h1>
             
             <!-- نظام التبويبات -->
             <ul class="nav nav-tabs mb-4" id="mainTabs">
@@ -73,8 +82,7 @@
                             <div class="cyber-card p-3">
                                 <h5 class="mb-3">🔍 بحث سريع</h5>
                                 <input type="text" class="form-control bg-dark text-light mb-3" 
-                                       id="ipInput" placeholder="أدخل عنوان IP"
-                                       pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$" required>
+                                       id="ipInput" placeholder="أدخل عنوان IP" required>
                                 <div class="d-grid gap-2">
                                     <button class="btn btn-primary" onclick="runFullIPAnalysis()">بدء التحليل</button>
                                     <button class="btn btn-outline-secondary" onclick="clearResults()">مسح النتائج</button>
@@ -112,12 +120,12 @@
                         <div class="mb-3">
                             <label class="form-label">مفتاح VirusTotal</label>
                             <input type="text" class="form-control bg-dark text-light" 
-                                   id="vtKey" autocomplete="off">
+                                   id="vtKey" autocomplete="off" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">مفتاح AbuseIPDB</label>
                             <input type="text" class="form-control bg-dark text-light" 
-                                   id="abuseKey" autocomplete="off">
+                                   id="abuseKey" autocomplete="off" required>
                         </div>
                         <button class="btn btn-primary" onclick="saveSettings()">حفظ الإعدادات</button>
                         <button class="btn btn-danger ms-2" onclick="resetSettings()">إعادة الضبط</button>
@@ -131,17 +139,16 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>
         class OSINTApp {
             constructor() {
-                this.settings = {
+                this.settings = JSON.parse(localStorage.getItem('osintSettings')) || {
                     apis: {
                         virusTotal: '',
                         abuseIPDB: ''
-                    },
-                    history: []
+                    }
                 };
                 this.map = null;
                 this.chart = null;
@@ -155,12 +162,8 @@
             }
 
             loadSettings() {
-                const saved = localStorage.getItem('osintSettings');
-                if (saved) {
-                    this.settings = JSON.parse(saved);
-                    document.getElementById('vtKey').value = this.settings.apis.virusTotal;
-                    document.getElementById('abuseKey').value = this.settings.apis.abuseIPDB;
-                }
+                document.getElementById('vtKey').value = this.settings.apis.virusTotal;
+                document.getElementById('abuseKey').value = this.settings.apis.abuseIPDB;
             }
 
             saveSettings() {
@@ -185,6 +188,11 @@
                 const alert = document.createElement('div');
                 alert.className = `alert alert-${type} mt-3`;
                 alert.textContent = message;
+                const closeBtn = document.createElement('span');
+                closeBtn.innerHTML = '&times;';
+                closeBtn.className = 'close';
+                closeBtn.onclick = () => alert.remove();
+                alert.appendChild(closeBtn);
                 document.querySelector('.tab-content').prepend(alert);
                 setTimeout(() => alert.remove(), 5000);
             }
@@ -198,17 +206,12 @@
 
             async fullAnalysis() {
                 if (!this.validateIP()) throw new Error('عنوان IP غير صالح');
-
                 try {
                     const [geo, threat] = await Promise.all([
                         this.getGeoData(),
                         this.getThreatData()
                     ]);
-                    
-                    return {
-                        geoData: geo,
-                        threatData: threat
-                    };
+                    return { geoData: geo, threatData: threat };
                 } catch (error) {
                     throw new Error(`فشل التحليل: ${error.message}`);
                 }
@@ -225,7 +228,6 @@
 
             async getThreatData() {
                 const results = {};
-                
                 // VirusTotal
                 if (app.settings.apis.virusTotal) {
                     const vtResponse = await axios.get(`https://www.virustotal.com/api/v3/ip_addresses/${this.ip}`, {
@@ -233,7 +235,6 @@
                     });
                     results.virusTotal = vtResponse.data;
                 }
-                
                 // AbuseIPDB
                 if (app.settings.apis.abuseIPDB) {
                     const abuseResponse = await axios.get('https://api.abuseipdb.com/api/v2/check', {
@@ -242,7 +243,6 @@
                     });
                     results.abuseIPDB = abuseResponse.data;
                 }
-                
                 return results;
             }
         }
@@ -252,18 +252,15 @@
         async function runFullIPAnalysis() {
             const ip = document.getElementById('ipInput').value.trim();
             if (!ip) return app.showAlert('الرجاء إدخال عنوان IP');
-            
             try {
                 toggleLoader(true);
                 const analyzer = new IPAnalyzer(ip);
                 const results = await analyzer.fullAnalysis();
-                
                 displayGeoData(results.geoData);
                 displayThreatData(results.threatData);
                 updateMap(results.geoData);
                 updateChart(results.threatData);
                 addToHistory(ip);
-                
             } catch (error) {
                 app.showAlert(error.message);
             } finally {
@@ -273,8 +270,7 @@
 
         function displayGeoData(data) {
             const geoElement = document.getElementById('geoData');
-            const safeData = sanitizeData(data);
-            geoElement.innerHTML = `<pre>${JSON.stringify(safeData, null, 2)}</pre>`;
+            geoElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
         }
 
         function displayThreatData(data) {
@@ -283,7 +279,7 @@
                 .map(([source, info]) => `
                     <div class="threat-item mb-3">
                         <h6>${source}</h6>
-                        <pre>${JSON.stringify(sanitizeData(info), null, 2)}</pre>
+                        <pre>${JSON.stringify(info, null, 2)}</pre>
                     </div>
                 `).join('');
         }
@@ -295,23 +291,26 @@
                     <b>البلد:</b> ${geoData.country_name}<br>
                     <b>المدينة:</b> ${geoData.city}<br>
                     <b>المزود:</b> ${geoData.org}
-                `);
+                `).openPopup();
             }
         }
 
         function updateChart(data) {
             const ctx = document.getElementById('threatChart');
             if (app.chart) app.chart.destroy();
-            
-            const threatLevels = Object.values(data).map(d => d.data && d.data.attributes ? d.data.attributes.last_analysis_stats?.malicious || 0 : 0);
-            
+            const threatLevels = Object.keys(data).map(source => {
+                return {
+                    label: source,
+                    value: data[source].data?.attributes?.last_analysis_stats?.malicious || 0
+                };
+            });
             app.chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(data),
+                    labels: threatLevels.map(item => item.label),
                     datasets: [{
                         label: 'مستوى التهديد',
-                        data: threatLevels,
+                        data: threatLevels.map(item => item.value),
                         backgroundColor: '#0d6efd'
                     }]
                 }
@@ -322,23 +321,11 @@
             document.getElementById('ipLoader').style.display = show ? 'block' : 'none';
         }
 
-        function sanitizeData(input) {
-            if (typeof input !== 'object') return input;
-            const safeData = {};
-            for (const [key, value] of Object.entries(input)) {
-                safeData[key] = typeof value === 'string' ? value.replace(/</g, '&lt;').replace(/>/g, '&gt;') : value;
-            }
-            return safeData;
-        }
-
         function addToHistory(ip) {
             const historyElement = document.getElementById('ipHistory');
             const entry = document.createElement('div');
             entry.className = 'history-entry mb-2';
-            entry.innerHTML = `
-                <span class="text-primary">${ip}</span>
-                <small class="text-muted">${new Date().toLocaleString()}</small>
-            `;
+            entry.innerHTML = `<span class="text-primary">${ip}</span> <small class="text-muted">(${new Date().toLocaleString()})</small>`;
             historyElement.prepend(entry);
         }
 
@@ -354,7 +341,7 @@
             localStorage.removeItem('osintSettings');
             document.getElementById('vtKey').value = '';
             document.getElementById('abuseKey').value = '';
-            app.settings = { apis: {}, history: [] };
+            app.settings = { apis: { virusTotal: '', abuseIPDB: '' } };
             app.showAlert('تم إعادة تعيين الإعدادات', 'warning');
         }
     </script>
